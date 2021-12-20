@@ -5,7 +5,10 @@ int pos;
 bool ArraysInitialized = false;
 bool warningLED = false;
 bool BuzzerBeeping = true;
-bool servo_Rotaion = true;
+int servo_Rotaion = 1;
+bool readyState = true;
+// 2 if python is controlling
+
 int d1[19];
 int d2[19];
 // servo end
@@ -14,7 +17,7 @@ int delayed = 10;
 int input_timeout = 10000;
 int neglectableDistance = 2; // IN INCHES
 int reinitializationProcess = 0;
-int servo_stat = 1;
+// int servo_stat = 1;
 // 1 if module is connected for pythons operation
 // 0 if module is not connected for python operations
 
@@ -49,9 +52,19 @@ int distance;  // variable for the distance measurement
 long duration2; // variable for the duration of sound wave travel
 int distance2;  // variable for the distance measurement
 // ultrasound end
-
+void beep_lite(int alfaOne) {
+  while (alfaOne > 0) {
+    digitalWrite(critical_zone_buzzer, HIGH);
+    delay(10);
+    digitalWrite(critical_zone_buzzer, LOW);
+    delay(10);
+    alfaOne--;
+  }
+}
 void inputHandler(int choice) {
-  Serial.println("input Handler call");
+  if (servo_Rotaion < 2) {
+    Serial.println("input Handler call");
+  }
   // choice = Serial.parseInt();
   // choice = getString().toInt();
   if (choice == 1) {
@@ -134,9 +147,9 @@ void inputHandler(int choice) {
       Serial.println("Enter 2 to Start servo_Rotaion");
       choice = getString().toInt();
       if (choice == 1) {
-        servo_Rotaion = false;
+        servo_Rotaion = 0;
       } else if (choice == 2) {
-        servo_Rotaion = true;
+        servo_Rotaion = 1;
       }
     }
   } else if (choice == 4) {
@@ -158,10 +171,33 @@ void inputHandler(int choice) {
     } else if (choice == 98) {
       digitalWrite(warning_zone_Led, HIGH);
     }
+    readyState = true;
+  } else if (choice == 26 || choice == 980) {
+    if (choice == 26) {
+      servo_Rotaion = 2;
+      if (readyState) {
+        Serial.println("Using UltraSoundSensor 1 only");
+        readyState = false;
+        beep_lite(3);
+      }
+    } else {
+      servo_Rotaion = 4;
+      if (readyState) {
+        Serial.println("Using UltraSoundSensor 2 only");
+        readyState = false;
+        beep_lite(3);
+      }
+    }
+    readyState = true;
+  } else if (choice == 23) {
+    readyState = 1;
   }
 
   choice = 0;
-  Serial.println("Handler out");
+  if (servo_Rotaion < 2 && readyState) {
+    Serial.println("Handler out");
+    readyState = false;
+  }
 }
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -173,11 +209,12 @@ void setup() {
 
   pinMode(trigPin2, OUTPUT); // Sets the trigPin as an OUTPUT
   pinMode(echoPin2, INPUT);  // Sets the echoPin as an INPUT
-  Serial.begin(
-      9600); // // Serial Communication is starting with 9600 of baudrate speed
-  Serial.println(
-      "Ultrasonic Sensor HC-SR04 Test"); // print some text in Serial Monitor
-  Serial.println("with Arduino UNO R3");
+  Serial.begin(9600);
+  if (servo_Rotaion < 2 && readyState) {
+    Serial.println("Code#3");
+    readyState = false;
+  }
+  // Serial.println("with Arduino UNO R3");
 }
 void loop() {
   if (Serial.available() >= 1) {
@@ -195,68 +232,71 @@ void loop() {
   temp_alrm_time = alarm_time;
 }
 void servoRotation() {
+  if (servoRotation == 2 || servoRotation == 4) {
+    update_distance(true);
+  } else {
+    if (servo_Rotaion == 1) {
+      delay(300);
+    }
+    for (pos = 0; pos <= 180; pos++) {
+      if (Serial.available() >= 1) {
+        choice = Serial.parseInt();
+        if (choice >= 1) {
+          inputHandler(choice);
+        }
+      }
+      if (servo_Rotaion == 1) {
+        Myservo.write(pos);
+        delay(rotation_speed_delay);
+      }
+      if (pos % display_reading_after == 0) {
+        blynk(20);
+        if (servo_Rotaion == 1) {
+          Serial.print("Angle : " + String(pos) + " -> ");
+        }
+        update_distance(true);
+      }
+    }
+    if (servo_Rotaion == 1) {
+      delay(300);
+    }
+    for (pos = 180; pos >= 0; pos--) {
+      if (Serial.available() >= 1) {
+        choice = Serial.parseInt();
+        if (choice >= 1) {
+          inputHandler(choice);
+        }
+      }
+      if (servo_Rotaion == 1) {
+        Myservo.write(pos);
+        delay(rotation_speed_delay);
+      }
+      if (pos % display_reading_after == 0) {
+        blynk(20);
+        if (servo_Rotaion == 1) {
+          Serial.print("Angle : " + String(pos) + " -> ");
+        }
+        update_distance(true);
+      }
+    }
+    if (!ArraysInitialized) {
+      ArraysInitialized = true;
+      Serial.println("data in array is");
 
-  if (servo_Rotaion) {
-    delay(300);
-  }
-  for (pos = 0; pos <= 180; pos++) {
-    if (Serial.available() >= 1) {
-      choice = Serial.parseInt();
-      if (choice >= 1) {
-        inputHandler(choice);
+      int ijk = 0;
+      Serial.print("D1 : ");
+      for (; ijk < 18; ijk++) {
+        Serial.print(String(d1[ijk]) + ",");
       }
-    }
-    if (servo_Rotaion) {
-      Myservo.write(pos);
-      delay(rotation_speed_delay);
-    }
-    if (pos % display_reading_after == 0) {
-      blynk(20);
-      if (servo_Rotaion) {
-        Serial.print("Angle : " + String(pos) + " -> ");
-      }
-      update_distance(true);
-    }
-  }
-  if (servo_Rotaion) {
-    delay(300);
-  }
-  for (pos = 180; pos >= 0; pos--) {
-    if (Serial.available() >= 1) {
-      choice = Serial.parseInt();
-      if (choice >= 1) {
-        inputHandler(choice);
-      }
-    }
-    if (servo_Rotaion) {
-      Myservo.write(pos);
-      delay(rotation_speed_delay);
-    }
-    if (pos % display_reading_after == 0) {
-      blynk(20);
-      if (servo_Rotaion) {
-        Serial.print("Angle : " + String(pos) + " -> ");
-      }
-      update_distance(true);
-    }
-  }
-  if (!ArraysInitialized) {
-    ArraysInitialized = true;
-    Serial.println("data in array is");
+      Serial.println("");
 
-    int ijk = 0;
-    Serial.print("D1 : ");
-    for (; ijk < 18; ijk++) {
-      Serial.print(String(d1[ijk]) + ",");
+      ijk = 0;
+      Serial.print("D2 : ");
+      for (; ijk < 18; ijk++) {
+        Serial.print(String(d2[ijk]) + ",");
+      }
+      Serial.println("");
     }
-    Serial.println("");
-
-    ijk = 0;
-    Serial.print("D2 : ");
-    for (; ijk < 18; ijk++) {
-      Serial.print(String(d2[ijk]) + ",");
-    }
-    Serial.println("");
   }
 }
 void update_distance(bool check) {
@@ -276,22 +316,38 @@ void update_distance(bool check) {
   duration2 = pulseIn(echoPin2, HIGH);
   distance2 = duration2 * 0.034 / 2;
 
-  Serial.print("D1 : ");
-  Serial.print(distance / 2.54);
-  Serial.print(", D2 : ");
-  Serial.print(distance2 / 2.54);
-  Serial.println(" in");
+  if (servo_Rotaion == 2) {
+    if (readyState) {
+      Serial.print("D1 : ");
+      Serial.print(distance / 2.54);
+      Serial.println(" in");
+      readyState = false;
+    }
+  } else if (servo_Rotaion == 4) {
+    if (readyState) {
+      Serial.print(", D2 : ");
+      Serial.print(distance2 / 2.54);
+      Serial.println(" in");
+      readyState = false;
+    }
+  } else {
+    Serial.print("D1 : ");
+    Serial.print(distance / 2.54);
+    Serial.print(", D2 : ");
+    Serial.print(distance2 / 2.54);
+    Serial.println(" in");
 
-  if (!ArraysInitialized && check) { // initializing arrays
-    // Serial.print("Angle : " + String(pos));
-    // Serial.println(", index : " + String(pos / display_reading_after));
-    d1[pos / display_reading_after] = (distance / 2.54);
-    d2[pos / display_reading_after] = (distance2 / 2.54);
-  } else if (ArraysInitialized && check) { // Checking if position changed
+    if (!ArraysInitialized && check) { // initializing arrays
+      // Serial.print("Angle : " + String(pos));
+      // Serial.println(", index : " + String(pos / display_reading_after));
+      d1[pos / display_reading_after] = (distance / 2.54);
+      d2[pos / display_reading_after] = (distance2 / 2.54);
+    } else if (ArraysInitialized && check) { // Checking if position changed
 
-    distanceChangeHandler(d1, distance, 1);
-    // sending array as a pointer,distance of that array and there number.
-    distanceChangeHandler(d2, distance2, 2);
+      distanceChangeHandler(d1, distance, 1);
+      // sending array as a pointer,distance of that array and there number.
+      distanceChangeHandler(d2, distance2, 2);
+    }
   }
 }
 void check_critical_distance() {

@@ -10,12 +10,15 @@ def write_read(x):
     data = arduino.readline()
     return data
 
+# def detect_face():
+
+
 time.sleep(3)
 print(write_read("26"))
 time.sleep(2)
 # 26 to use sensor 1
 # 980 to use sensor 2
-
+# votes = 15
 # time.sleep(3)
 # net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 # net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -23,7 +26,9 @@ video = cv2.VideoCapture(0)
 # load "haarcascade_frontalface_default.xml" by creating a CascadeClassifier
 # object as cascade
 cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-imgDetected = False
+status = True
+imgcheck = False
+print(write_read("98"))
 while True:
     check, frame = video.read()
 
@@ -41,15 +46,39 @@ while True:
     # using for loop to go through the locations x,y,w,h and drow a rectangle
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
-    #     if not imgDetected:
-    #         print(write_read("98"))
-    #         imgDetected = True
-    #         time.sleep(1)
-    # if imgDetected:
+        imgcheck = True
+        # if not imgDetected and votes < 0:
+        #     print(write_read("98"))
+        #     imgDetected = True
+        #     time.sleep(0.9)
+        #     votes = 15
+        # elif not imgDetected:
+        #     votes -= 1
+    # print("no face detected")
+    # if imgDetected and votes < 0:
     #     print(write_read("44"))
-    #     time.sleep(1)
+    #     time.sleep(0.9)
     #     imgDetected = False
+    #     votes = 15
+    # elif imgDetected:
+    #     votes -= 1
+    if not imgcheck and status:
+        # print("no face detected")
+        # if imgDetected and votes < 0:
+        print(write_read("44"))
+        time.sleep(0.9)
+        status = False
+        # imgDetected = False
+        # votes = 15
+        # elif imgDetected:
+        # votes -= 1
+    elif imgcheck and not status:
+        # print("Face detected")
+        print(write_read("98"))
+        time.sleep(0.9)
+        status = True
     cv2.imshow("Video", frame)
+    imgcheck = False
     key = cv2.waitKey(1)
     if(key == ord('q')):
         break

@@ -23,13 +23,13 @@ while True:
 
     # print(write_read("23"))  # printing the value
     # time.sleep(requiredDelay)
-    # stri = arduino.readline()
-    # print(stri)
+    stri = arduino.readline()
+    print(stri)
 
     print(write_read("44"))  # printing the value
     time.sleep(requiredDelay)
 
     # print(write_read("23"))  # printing the value
     # time.sleep(requiredDelay)
-    # stri = arduino.readline()
-    # print(stri)
+    stri = arduino.readline()
+    print(stri)
