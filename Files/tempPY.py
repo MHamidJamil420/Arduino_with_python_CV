@@ -18,7 +18,7 @@ print(write_read("26"))
 time.sleep(2)
 # 26 to use sensor 1
 # 980 to use sensor 2
-# votes = 15
+error_manager = 5
 # time.sleep(3)
 # net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 # net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -26,7 +26,7 @@ video = cv2.VideoCapture(0)
 # load "haarcascade_frontalface_default.xml" by creating a CascadeClassifier
 # object as cascade
 cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-imgDetected = False
+status = True
 imgcheck = False
 print(write_read("98"))
 while True:
@@ -47,34 +47,23 @@ while True:
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
         imgcheck = True
-        # if not imgDetected and votes < 0:
-        #     print(write_read("98"))
-        #     imgDetected = True
-        #     time.sleep(0.9)
-        #     votes = 15
-        # elif not imgDetected:
-        #     votes -= 1
-    # print("no face detected")
-    # if imgDetected and votes < 0:
-    #     print(write_read("44"))
-    #     time.sleep(0.9)
-    #     imgDetected = False
-    #     votes = 15
-    # elif imgDetected:
-    #     votes -= 1
-    if not imgcheck:
-        print("no face detected")
-        # if imgDetected and votes < 0:
-        print(write_read("44"))
-        time.sleep(0.9)
-            # imgDetected = False
-            # votes = 15
-        # elif imgDetected:
-            # votes -= 1
-    elif imgcheck:
-        print("Face detected")
-        print(write_read("98"))
-        time.sleep(0.9)
+
+    if not imgcheck and status or error_manager == 0:
+        # print("no face detected")
+        if not imgcheck and status and error_manager == 0:
+            print(write_read("44"))
+            time.sleep(0.9)
+            status = False
+        elif error_manager != 0:
+            error_manager -= 1
+    elif imgcheck and not status or error_manager == 5:
+        if imgcheck and not status and error_manager == 5:
+            print(write_read("98"))
+            time.sleep(0.9)
+            status = True
+        elif error_manager != 5:
+            error_manager += 1
+    print(error_manager)
     cv2.imshow("Video", frame)
     imgcheck = False
     key = cv2.waitKey(1)
