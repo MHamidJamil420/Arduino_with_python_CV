@@ -18,7 +18,7 @@ print(write_read("26"))
 time.sleep(2)
 # 26 to use sensor 1
 # 980 to use sensor 2
-# votes = 15
+erro_correction = 5
 # time.sleep(3)
 # net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 # net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
@@ -47,35 +47,15 @@ while True:
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
         imgcheck = True
-        # if not imgDetected and votes < 0:
-        #     print(write_read("98"))
-        #     imgDetected = True
-        #     time.sleep(0.9)
-        #     votes = 15
-        # elif not imgDetected:
-        #     votes -= 1
-    # print("no face detected")
-    # if imgDetected and votes < 0:
-    #     print(write_read("44"))
-    #     time.sleep(0.9)
-    #     imgDetected = False
-    #     votes = 15
-    # elif imgDetected:
-    #     votes -= 1
+        
     if not imgcheck and status:
         # print("no face detected")
-        # if imgDetected and votes < 0:
         print(write_read("44"))
-        time.sleep(0.9)
+        time.sleep(1)
         status = False
-        # imgDetected = False
-        # votes = 15
-        # elif imgDetected:
-        # votes -= 1
     elif imgcheck and not status:
-        # print("Face detected")
         print(write_read("98"))
-        time.sleep(0.9)
+        time.sleep(1)
         status = True
     cv2.imshow("Video", frame)
     imgcheck = False
