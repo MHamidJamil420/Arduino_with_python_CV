@@ -19,15 +19,12 @@ time.sleep(2)
 # 26 to use sensor 1
 # 980 to use sensor 2
 error_manager = 5
-# time.sleep(3)
-# net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-# net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 video = cv2.VideoCapture(0)
 # load "haarcascade_frontalface_default.xml" by creating a CascadeClassifier
 # object as cascade
 cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
-status = True
-imgcheck = False
+true_for_if = True
+face_detected = False
 print(write_read("98"))
 while True:
     check, frame = video.read()
@@ -46,26 +43,29 @@ while True:
     # using for loop to go through the locations x,y,w,h and drow a rectangle
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
-        imgcheck = True
-
-    if not imgcheck and status or error_manager == 0:
-        # print("no face detected")
-        if not imgcheck and status and error_manager == 0:
+        face_detected = True
+    if not face_detected and true_for_if:
+        print("no face detected")
+        if not face_detected and true_for_if and error_manager <= 0:
             print(write_read("44"))
-            time.sleep(0.9)
-            status = False
-        elif error_manager != 0:
+            time.sleep(1)
+            true_for_if = False
+            print(true_for_if)
+        elif error_manager > 0:
             error_manager -= 1
-    elif imgcheck and not status or error_manager == 5:
-        if imgcheck and not status and error_manager == 5:
+            # time.sleep(0.2)
+    elif face_detected and (not true_for_if):
+        print("face detected")
+        if face_detected and (not true_for_if) and error_manager >= 5:
             print(write_read("98"))
-            time.sleep(0.9)
-            status = True
-        elif error_manager != 5:
+            time.sleep(1)
+            true_for_if = True
+            print(true_for_if)
+        elif error_manager <= 5:
             error_manager += 1
     print(error_manager)
     cv2.imshow("Video", frame)
-    imgcheck = False
+    face_detected = False
     key = cv2.waitKey(1)
     if(key == ord('q')):
         break
