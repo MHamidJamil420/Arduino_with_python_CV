@@ -1,20 +1,17 @@
 import cv2
 import serial
 import time
-arduino = serial.Serial(port='COM3', baudrate=115200, timeout=.1)
-
-
+arduino = serial.Serial(port='COM11', baudrate=9600, timeout=.1)
 def write_read(x):
     arduino.write(bytes(x, 'utf-8'))
     time.sleep(0.05)
     data = arduino.readline()
     return data
 
-
+time.sleep(3)
 # net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 # net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 video = cv2.VideoCapture(0)
-i = '1'
 # load "haarcascade_frontalface_default.xml" by creating a CascadeClassifier
 # object as cascade
 cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
@@ -36,15 +33,8 @@ while True:
     # using for loop to go through the locations x,y,w,h and drow a rectangle
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
-
-        # num = i  # Taking input from user
-        value = write_read('2')
-        print(value)  # printing the value
-        # i += 1
-        # if i > 255:
-        #     i = 0
-    value = write_read('1')
-    print(value)  # printing the value
+        print(write_read("98"))
+    print(write_read("98"))
     cv2.imshow("Video", frame)
     key = cv2.waitKey(1)
     if(key == ord('q')):
