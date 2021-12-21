@@ -1,6 +1,7 @@
 import cv2
-import serial
 import time
+
+import serial
 arduino = serial.Serial(port='COM11', baudrate=9600, timeout=.1)
 
 
@@ -46,17 +47,17 @@ while True:
     # using for loop to go through the locations x,y,w,h and drow a rectangle
     for x, y, w, h in face:
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 3)
-        imgcheck = True
+    #     imgcheck = True
         
-    if not imgcheck and status:
-        # print("no face detected")
-        print(write_read("44"))
-        time.sleep(1)
-        status = False
-    elif imgcheck and not status:
-        print(write_read("98"))
-        time.sleep(1)
-        status = True
+    # if not imgcheck and status:
+    #     # print("no face detected")
+    #     print(write_read("44"))
+    #     time.sleep(1)
+    #     status = False
+    # elif imgcheck and not status:
+    #     print(write_read("98"))
+    #     time.sleep(1)
+    #     status = True
     cv2.imshow("Video", frame)
     imgcheck = False
     key = cv2.waitKey(1)

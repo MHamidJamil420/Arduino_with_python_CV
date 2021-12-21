@@ -18,7 +18,8 @@ print(write_read("26"))
 time.sleep(2)
 # 26 to use sensor 1
 # 980 to use sensor 2
-error_manager = 5
+votes = 50
+error_manager = votes
 video = cv2.VideoCapture(0)
 # load "haarcascade_frontalface_default.xml" by creating a CascadeClassifier
 # object as cascade
@@ -46,7 +47,7 @@ while True:
         face_detected = True
     if not face_detected and true_for_if:
         print("no face detected")
-        if not face_detected and true_for_if and error_manager <= 0:
+        if not face_detected and true_for_if and error_manager <= votes:
             print(write_read("44"))
             time.sleep(1)
             true_for_if = False
@@ -56,12 +57,12 @@ while True:
             # time.sleep(0.2)
     elif face_detected and (not true_for_if):
         print("face detected")
-        if face_detected and (not true_for_if) and error_manager >= 5:
+        if face_detected and (not true_for_if) and error_manager >= votes:
             print(write_read("98"))
             time.sleep(1)
             true_for_if = True
             print(true_for_if)
-        elif error_manager <= 5:
+        elif error_manager <= votes:
             error_manager += 1
     print(error_manager)
     cv2.imshow("Video", frame)
