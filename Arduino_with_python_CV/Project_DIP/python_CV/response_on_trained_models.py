@@ -57,7 +57,7 @@ while True:
                 conditional_status = False
                 # print()
             else:
-                print("unknown face detected")
+                # print("unknown face detected")
         frame = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 255), 4)
 
     cv2.imshow("Video", frame)
